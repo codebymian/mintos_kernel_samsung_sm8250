@@ -1,0 +1,72 @@
+name: Build Astro kernel
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        device: [ y2q ]
+
+    steps:
+      - name: Checkout repository (with submodules)
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+          submodules: recursive   # ensures mkbootimg/mkdtimg submodules are pulled
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            bc \
+            bison \
+            build-essential \
+            curl \
+            dwarves \
+            flex \
+            git \
+            libelf-dev \
+            libssl-dev \
+            python3 \
+            unzip \
+            wget \
+            zip \
+            zstd
+
+      - name: Cache LLVM toolchain
+        uses: actions/cache@v4
+        with:
+          path: clang-llvm
+          key: llvm-22.1.4
+
+      - name: Download kernel.org Clang (LLVM 22.1.4)
+        run: |
+          export TC_DIR=$(pwd)/clang-llvm
+          export PATH="$TC_DIR/bin:$PATH"
+          if ! [ -d "$TC_DIR/bin" ]; then
+              echo "Clang not found! Downloading to $TC_DIR..."
+              mkdir -p "$TC_DIR"
+              if ! curl -L https://www.kernel.org/pub/tools/llvm/files/llvm-22.1.4-x86_64.tar.gz \
+                  | tar -xz -C "$TC_DIR" --strip-components=1; then
+                  echo "Download failed! Aborting..."
+                  exit 1
+              fi
+          fi
+
+      - name: Prepare tools
+        run: |
+          chmod +x tools/mkdtimg || true
+
+      - name: Build kernel + package
+        run: |
+          chmod +x build_astro.sh
+          bash build_astro.sh "${{ matrix.device }}"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Astro-Kernel-${{ matrix.device }}
+          path: Astro-Kernel-${{ matrix.device }}.zip
