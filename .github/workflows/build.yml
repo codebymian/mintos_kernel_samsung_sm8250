@@ -36,25 +36,15 @@ jobs:
             zip \
             zstd
 
-      - name: Cache LLVM toolchain
-        uses: actions/cache@v4
-        with:
-          path: clang-llvm
-          key: llvm-22.1.4
-
-      - name: Download kernel.org Clang (LLVM 22.1.4)
+      - name: Set Neutron Clang toolchain
         run: |
-          export TC_DIR=$(pwd)/clang-llvm
-          export PATH="$TC_DIR/bin:$PATH"
-          if ! [ -d "$TC_DIR/bin" ]; then
-              echo "Clang not found! Downloading to $TC_DIR..."
-              mkdir -p "$TC_DIR"
-              if ! curl -L https://www.kernel.org/pub/tools/llvm/files/llvm-22.1.4-x86_64.tar.gz \
-                  | tar -xz -C "$TC_DIR" --strip-components=1; then
-                  echo "Download failed! Aborting..."
-                  exit 1
-              fi
+          if [ ! -d "/home/atakan/geliştirme/tools/toolchains/neutron-clang/bin" ]; then
+              echo "Error: Neutron Clang toolchain not found. Exiting."
+              exit 1
           fi
+          export PATH="/home/atakan/geliştirme/tools/toolchains/neutron-clang/bin:${PATH}"
+          export KERNEL_LLVM_BIN="/home/atakan/geliştirme/tools/toolchains/neutron-clang/bin/clang"
+          echo "Using Neutron Clang at $KERNEL_LLVM_BIN"
 
       - name: Prepare tools
         run: |
