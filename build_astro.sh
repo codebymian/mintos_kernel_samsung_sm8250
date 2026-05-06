@@ -4,16 +4,14 @@ KERNEL_DIR=$(pwd)
 DEVICE="$1"
 
 # --- Toolchain setup ---
-if [ ! -d "/home/atakan/geliştirme/tools/toolchains/neutron-clang/bin" ]; then
-    echo "Error: Neutron Clang toolchain not found. Exiting."
+if [ -z "$KERNEL_LLVM_BIN" ] || [ ! -x "$KERNEL_LLVM_BIN" ]; then
+    echo "Error: Neutron Clang toolchain not found in CI environment. Exiting."
     exit 1
 fi
 
-export PATH="/home/atakan/geliştirme/tools/toolchains/neutron-clang/bin:${PATH}"
-export KERNEL_LLVM_BIN="/home/atakan/geliştirme/tools/toolchains/neutron-clang/bin/clang"
+export PATH="$(dirname "$KERNEL_LLVM_BIN"):$PATH"
 
 # --- Platform setup ---
-# Kona platform now belongs to platform 11
 export PROJECT_NAME="${DEVICE}"
 [ -z "${PLATFORM_VERSION}" ] && export PLATFORM_VERSION=11
 
