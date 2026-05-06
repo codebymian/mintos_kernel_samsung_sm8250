@@ -36,16 +36,26 @@ jobs:
             zip \
             zstd
 
-      - name: Download Neutron Clang
+      - name: Cache Neutron Clang
+        uses: actions/cache@v4
+        with:
+          path: neutron-clang
+          key: neutron-clang-10032024
+
+      - name: Setup Neutron Clang toolchain
         run: |
-          mkdir -p neutron-clang
-           curl -L https://github.com/Neutron-Clang/neutron-clang/releases/download/20240406/neutron-clang-20240406.tar.zst \
-          -o neutron-clang.tar.zst
-          tar -I zstd -xf neutron-clang.tar.zst -C neutron-clang --strip-components=1
-          rm neutron-clang.tar.zst
+          if [ ! -d neutron-clang/bin ]; then
+              echo "Downloading Neutron Clang..."
+              mkdir -p neutron-clang
+              curl -L https://github.com/Neutron-Clang/neutron-clang/releases/download/10032024/neutron-clang-10032024.tar.zst \
+                -o neutron-clang.tar.zst
+              tar -I zstd -xf neutron-clang.tar.zst -C neutron-clang --strip-components=1
+              rm neutron-clang.tar.zst
+          fi
           echo "PATH=$(pwd)/neutron-clang/bin:$PATH" >> $GITHUB_ENV
           echo "KERNEL_LLVM_BIN=$(pwd)/neutron-clang/bin/clang" >> $GITHUB_ENV
-
+          echo "PROJECT_NAME=${{ matrix.device }}" >> $GITHUB_ENV
+          echo "PLATFORM_VERSION=11" >> $GITHUB_ENV
 
       - name: Prepare tools
         run: |
