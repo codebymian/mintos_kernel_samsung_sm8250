@@ -36,15 +36,16 @@ jobs:
             zip \
             zstd
 
-      - name: Set Neutron Clang toolchain
+      - name: Download Neutron Clang
         run: |
-          if [ ! -d "/home/atakan/geliştirme/tools/toolchains/neutron-clang/bin" ]; then
-              echo "Error: Neutron Clang toolchain not found. Exiting."
-              exit 1
-          fi
-          export PATH="/home/atakan/geliştirme/tools/toolchains/neutron-clang/bin:${PATH}"
-          export KERNEL_LLVM_BIN="/home/atakan/geliştirme/tools/toolchains/neutron-clang/bin/clang"
-          echo "Using Neutron Clang at $KERNEL_LLVM_BIN"
+          mkdir -p neutron-clang
+           curl -L https://github.com/Neutron-Clang/neutron-clang/releases/download/20240406/neutron-clang-20240406.tar.zst \
+          -o neutron-clang.tar.zst
+          tar -I zstd -xf neutron-clang.tar.zst -C neutron-clang --strip-components=1
+          rm neutron-clang.tar.zst
+          echo "PATH=$(pwd)/neutron-clang/bin:$PATH" >> $GITHUB_ENV
+          echo "KERNEL_LLVM_BIN=$(pwd)/neutron-clang/bin/clang" >> $GITHUB_ENV
+
 
       - name: Prepare tools
         run: |
