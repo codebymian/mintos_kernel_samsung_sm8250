@@ -39,7 +39,6 @@ enum sensor_retention_mode {
 #define HI847_SENSOR_ID   0x00
 #endif
 
-#if defined(CONFIG_CAMERA_ADAPTIVE_MIPI)
 #define FRONT_SENSOR_ID_IMX374 0x0374
 #define FRONT_SENSOR_ID_S5K3J1 0x30A1
 #define TOF_SENSOR_ID_IMX518 0x0518
@@ -54,6 +53,7 @@ enum sensor_retention_mode {
 #define SENSOR_ID_S5KHM1 0x1AD1
 #define SENSOR_ID_S5K3M5 0x30D5
 
+#if defined(CONFIG_CAMERA_ADAPTIVE_MIPI)
 #define INVALID_MIPI_INDEX -1
 #endif
 
