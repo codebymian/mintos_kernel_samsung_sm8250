@@ -42,7 +42,7 @@ jobs:
           path: neutron-clang
           key: neutron-clang-10032024
 
-      - name: Setup Neutron Clang toolchain
+      - name: Setup Neutron Clang toolchain (dual-mode)
         run: |
           if [ ! -d neutron-clang/bin ]; then
               echo "Downloading Neutron Clang..."
@@ -52,10 +52,19 @@ jobs:
               tar -I zstd -xf neutron-clang.tar.zst -C neutron-clang --strip-components=1
               rm neutron-clang.tar.zst
           fi
-          echo "PATH=$(pwd)/neutron-clang/bin:$PATH" >> $GITHUB_ENV
-          echo "KERNEL_LLVM_BIN=$(pwd)/neutron-clang/bin/clang" >> $GITHUB_ENV
-          echo "PROJECT_NAME=${{ matrix.device }}" >> $GITHUB_ENV
-          echo "PLATFORM_VERSION=11" >> $GITHUB_ENV
+
+          # Dual-mode environment setup
+          if [ -n "$GITHUB_ENV" ]; then
+              echo "PATH=$(pwd)/neutron-clang/bin:$PATH" >> "$GITHUB_ENV"
+              echo "KERNEL_LLVM_BIN=$(pwd)/neutron-clang/bin/clang" >> "$GITHUB_ENV"
+              echo "PROJECT_NAME=${{ matrix.device }}" >> "$GITHUB_ENV"
+              echo "PLATFORM_VERSION=11" >> "$GITHUB_ENV"
+          else
+              export PATH="$(pwd)/neutron-clang/bin:$PATH"
+              export KERNEL_LLVM_BIN="$(pwd)/neutron-clang/bin/clang"
+              export PROJECT_NAME=y2q
+              export PLATFORM_VERSION=11
+          fi
 
       - name: Prepare tools
         run: |
