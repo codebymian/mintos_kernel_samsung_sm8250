@@ -69,11 +69,19 @@
 #define MST_MODE_OFF                    0                   // OFF Message to MFC ic
 static int mfc_get_chip_id(void);
 #if defined(CONFIG_MST_V2)
+#if defined(CONFIG_WIRELESS_CHARGER_MFC) || defined(CONFIG_WIRELESS_CHARGER_MFC_S2MIW04) || defined(CONFIG_WIRELESS_CHARGER_HAL_MFC)
 extern int mfc_reg_read(struct i2c_client *client, u16 reg, u8 *val);
 extern int mfc_reg_write(struct i2c_client *client, u16 reg, u8 val);
 extern int mfc_reg_multi_write(struct i2c_client *client, u16 reg, const u8 * val, int size);
 extern int mfc_get_firmware_version(struct mfc_charger_data *charger, int firm_mode);
 extern void mfc_set_cmd_l_reg(struct mfc_charger_data *charger, u8 val, u8 mask);
+#else
+static inline int mfc_reg_read(struct i2c_client *client, u16 reg, u8 *val) { return -ENODEV; }
+static inline int mfc_reg_write(struct i2c_client *client, u16 reg, u8 val) { return -ENODEV; }
+static inline int mfc_reg_multi_write(struct i2c_client *client, u16 reg, const u8 * val, int size) { return -ENODEV; }
+static inline int mfc_get_firmware_version(struct mfc_charger_data *charger, int firm_mode) { return -ENODEV; }
+static inline void mfc_set_cmd_l_reg(struct mfc_charger_data *charger, u8 val, u8 mask) { }
+#endif
 #else
 #define psy_do_property(name, function, property, value) \
 {    \
